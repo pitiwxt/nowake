@@ -351,20 +351,23 @@ final class AppState: ObservableObject {
 
     // MARK: - Quitting
 
-    /// Restores the flag before exiting so it can't linger machine-wide.
     func quit() {
-        if SleepBlocker.isSleepDisabled {
-            do {
-                try SleepBlocker.setSleepDisabled(false)
-            } catch SleepBlockerError.cancelled {
-                guard Alerts.confirmQuitWhileActive() else { refresh(); return }
-            } catch {
-                Alerts.present(error)
-                refresh()
-                return
-            }
-        }
-        SleepBlocker.releaseAssertion()
         NSApp.terminate(nil)
+    }
+
+    /// Restores the flag before exiting so it can't linger machine-wide.
+    /// - Returns: `false` if the app should stay open.
+    func prepareToQuit() -> Bool {
+        guard SleepBlocker.isSleepDisabled else { return true }
+        do {
+            try SleepBlocker.setSleepDisabled(false)
+        } catch SleepBlockerError.cancelled {
+            guard Alerts.confirmQuitWhileActive() else { refresh(); return false }
+        } catch {
+            Alerts.present(error)
+            refresh()
+            return false
+        }
+        return true
     }
 }

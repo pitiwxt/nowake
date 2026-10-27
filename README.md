@@ -32,7 +32,11 @@ which doesn't even print that key on every macOS release.
 
 ## The panel
 
-Click the menu bar icon for a SwiftUI popover:
+Click the menu bar icon for a SwiftUI popover. Opening nowake from Finder,
+Spotlight or Launchpad shows the same controls in a regular window with a Dock
+icon, so the app stays reachable — and quittable with ⌘Q or the Dock menu — when
+the menu bar icon is hidden behind the notch or switched off in **System
+Settings › Menu Bar**. Launched as a login item, it stays in the menu bar.
 
 - A switch for the mode itself, with elapsed time once it's on
 - **Auto-off** — turn off automatically after 30 min / 1 / 2 / 4 hours, with a live countdown
@@ -84,7 +88,8 @@ Compiles, assembles `nowake.app`, ad-hoc signs it, and installs it to `~/Applica
 
 ## If the flag gets stuck
 
-Force-quitting or shutting down while the mode is on leaves the flag set. Launch
+Force-quitting or shutting down while the mode is on leaves the flag set. Every
+regular quit — the Quit button, ⌘Q, the Dock menu — switches it off first. Launch
 nowake and switch it off, or:
 
 ```

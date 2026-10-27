@@ -1,9 +1,11 @@
 import AppKit
+import CoreServices
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var statusItem: NSStatusItem!
     private var panel: PanelController!
+    private var window: AppWindowController!
     private let state = AppState()
 
     private var renderedIcon: String?
@@ -14,6 +16,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.button?.target = self
 
         panel = PanelController(state: state)
+        window = AppWindowController(state: state)
+        installMainMenu()
 
         state.onStateChange = { [weak self] in
             self?.updateStatusItem()
@@ -21,6 +25,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         state.start()
         updateStatusItem()
+
+        // Opened by hand, show the window: the menu bar icon may be hidden and
+        // this is the only other way in. At login, stay in the menu bar.
+        if !launchedAsLoginItem { showWindow() }
+    }
+
+    /// Opening the app again while it's already running.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        showWindow()
+        return false
+    }
+
+    /// Every way out — the Quit button, ⌘Q, the Dock menu — comes through here,
+    /// so the flag is restored before exiting and can't linger machine-wide.
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        // Logout, restart and shutdown shouldn't stall on a password prompt.
+        if sessionIsEnding { return .terminateNow }
+        return state.prepareToQuit() ? .terminateNow : .terminateCancel
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -59,6 +81,58 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         image?.isTemplate = true
         statusItem.button?.image = image
         statusItem.button?.toolTip = tooltip
+    }
+
+    // MARK: - Window
+
+    private func showWindow() {
+        state.refresh()
+        state.refreshPrivilegeStatus()
+        window.show()
+    }
+
+    /// Only shown while the window gives the app a Dock icon; it's what makes
+    /// ⌘Q, ⌘W and ⌘M work.
+    private func installMainMenu() {
+        let appMenu = NSMenu()
+        appMenu.addItem(withTitle: "Hide nowake", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        appMenu.addItem(.separator())
+        appMenu.addItem(withTitle: "Quit nowake", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+
+        let windowMenu = NSMenu(title: "Window")
+        windowMenu.addItem(withTitle: "Close", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+        windowMenu.addItem(withTitle: "Minimize", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+
+        let mainMenu = NSMenu()
+        for submenu in [appMenu, windowMenu] {
+            let item = NSMenuItem()
+            item.submenu = submenu
+            mainMenu.addItem(item)
+        }
+        NSApp.mainMenu = mainMenu
+        NSApp.windowsMenu = windowMenu
+    }
+
+    // MARK: - Launch and quit context
+
+    private var launchedAsLoginItem: Bool {
+        guard let event = NSAppleEventManager.shared().currentAppleEvent,
+              event.eventID == AEEventID(kAEOpenApplication)
+        else { return false }
+        return event.paramDescriptor(forKeyword: AEKeyword(keyAEPropData))?.enumCodeValue
+            == OSType(keyAELaunchedAsLogInItem)
+    }
+
+    private var sessionIsEnding: Bool {
+        guard let reason = NSAppleEventManager.shared().currentAppleEvent?
+            .attributeDescriptor(forKeyword: AEKeyword(kAEQuitReason))?.enumCodeValue
+        else { return false }
+        let sessionEnd: Set<OSType> = [
+            OSType(kAELogOut), OSType(kAEReallyLogOut),
+            OSType(kAEShowRestartDialog), OSType(kAERestart),
+            OSType(kAEShowShutdownDialog), OSType(kAEShutDown),
+        ]
+        return sessionEnd.contains(reason)
     }
 
     // MARK: - Panel

@@ -348,6 +348,7 @@
   .faq details[open] summary::after { content: "–"; }
   .faq .a { padding-bottom: 18px; display: grid; gap: 10px; color: var(--muted); }
   .faq .a strong { color: var(--ink); font-weight: 500; }
+  .faq .a ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
 
   footer.end {
     margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line);
@@ -427,7 +428,7 @@
         </li>
         <li>
           <h3>หาไอคอนถ้วยกาแฟบนแถบเมนู</h3>
-          <div class="body"><p>nowake ไม่มีหน้าต่างและไม่ขึ้นใน Dock มันจะอยู่เป็นไอคอนถ้วยกาแฟที่มุมขวาบนของจอ คลิกที่ไอคอนเพื่อเปิดหน้าต่างควบคุม</p></div>
+          <div class="body"><p>nowake อยู่เป็นไอคอนถ้วยกาแฟที่มุมขวาบนของจอ คลิกที่ไอคอนเพื่อเปิดหน้าต่างควบคุม ตอนเปิดแอปจาก Applications, Spotlight หรือ Launchpad จะมีหน้าต่างเดียวกันนี้ขึ้นมาพร้อมไอคอนใน Dock ด้วย ปิดหน้าต่างแล้วไอคอนใน Dock จะหายไป แอปยังทำงานอยู่บนแถบเมนู</p></div>
         </li>
       </ol>
     </section>
@@ -537,7 +538,12 @@
         <details>
           <summary>เปิดแอปแล้วไม่เห็นไอคอนบนแถบเมนู</summary>
           <div class="a">
-            <p>แถบเมนูน่าจะเต็ม โดยเฉพาะเครื่องที่มีรอยบากกลางจอ ไอคอนที่ล้นจะไปซ่อนอยู่หลังรอยบาก ลองปิดแอปอื่นบนแถบเมนูสักตัว หรือกด <strong>⌘</strong> ค้างแล้วลากไอคอนอื่นออกเพื่อให้มีที่ว่าง</p>
+            <p>เปิด nowake อีกครั้งจาก Applications หรือ Spotlight หน้าต่างควบคุมจะขึ้นมาพร้อมไอคอนใน Dock ใช้งานหรือกด <strong>Quit</strong> จากตรงนั้นได้เลย จะกด <strong>⌘Q</strong> หรือคลิกขวาที่ไอคอนใน Dock แล้วเลือก Quit ก็ได้ ทุกแบบจะปิดโหมดให้ก่อนออกจากแอป</p>
+            <p>ส่วนไอคอนที่หายไป มักเกิดจากสองอย่าง</p>
+            <ul>
+              <li>ถูกปิดไว้ใน <strong>System Settings › Menu Bar</strong> ดูในรายการ “Allow in the Menu Bar” แล้วเปิดสวิตช์ของ nowake</li>
+              <li>แถบเมนูเต็ม โดยเฉพาะเครื่องที่มีรอยบากกลางจอ ไอคอนที่ล้นจะไปซ่อนอยู่หลังรอยบาก ลองปิดแอปอื่นบนแถบเมนูสักตัว หรือกด <strong>⌘</strong> ค้างแล้วลากไอคอนอื่นออกเพื่อให้มีที่ว่าง</li>
+            </ul>
           </div>
         </details>
         <details>
